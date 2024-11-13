@@ -1,2 +1,2 @@
-export { useRequest } from './request'
-export { default as AwaitPromise } from './AwaitPromise.vue'
+export { usePromise } from "./request";
+export { default as Await } from "./Await.vue";

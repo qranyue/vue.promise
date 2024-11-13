@@ -1,41 +1,46 @@
-import { shallowReactive, watch, type WatchSource } from 'vue'
+import { shallowReactive, watch, type ShallowReactive, type WatchSource } from "vue";
 
+/** 配置项 */
 interface Opts<T> {
-  default?: T
-  initial?: boolean
+  /** 默认值 */
+  default?: T;
+  /** 初始化 */
+  immediate?: boolean;
 }
 
+/** 异步值 */
 interface Result<T> {
-  value?: T
-  error?: Error
-  loading: boolean
+  /** 异步返回参 */
+  value?: T;
+  /** 错误 */
+  error?: Error;
+  /** 加载中 */
+  loading: boolean;
 }
 
-export const useRequest = <T>(service: WatchSource<Promise<T> | undefined>, opts: Opts<T> = {}) => {
-  opts = { initial: true, ...opts }
+export const usePromise = <T>(service: WatchSource<Promise<T> | undefined>, opts: Opts<T> = {}) => {
+  opts = { immediate: true, ...opts };
 
-  const data = shallowReactive<Result<T>>({ loading: false, value: opts.default })
+  const data = shallowReactive<Result<T>>({ loading: false, value: opts.default });
 
   const dispatch = (promise?: Promise<T>) => {
-    if (!promise) return
-    data.loading = true
-    data.error = void 0
+    if (!promise) return;
+    data.loading = true;
+    data.error = void 0;
 
     return promise
       .then((res) => {
-        data.value = res
-        return res
+        data.value = res;
       })
       .catch((err) => {
-        data.error = err
-        throw err
+        data.error = err;
       })
       .finally(() => {
-        data.loading = false
-      })
-  }
+        data.loading = false;
+      });
+  };
 
-  watch(service, dispatch, { immediate: opts.initial })
+  watch(service, dispatch, { immediate: opts.immediate });
 
-  return data
-}
+  return [data, dispatch] as [ShallowReactive<Result<T>>, typeof dispatch];
+};

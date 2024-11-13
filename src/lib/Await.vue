@@ -1,11 +1,13 @@
 <script setup lang="ts" generic="T">
-import { useRequest } from './request'
+import { usePromise } from "./request";
+
+defineOptions({ name: "AwaitPromise" });
 
 const props = defineProps<{
-  promise?: Promise<T>
-}>()
+  promise?: Promise<T>;
+}>();
 
-const result = useRequest(() => props.promise)
+const [result] = usePromise(() => props.promise);
 </script>
 
 <template>
