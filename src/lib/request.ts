@@ -17,21 +17,22 @@ export const useRequest = <T>(service: WatchSource<Promise<T> | undefined>, opts
   const data = shallowReactive<Result<T>>({ loading: false, value: opts.default })
 
   const dispatch = (promise?: Promise<T>) => {
+    if (!promise) return
     data.loading = true
     data.error = void 0
 
-    if (promise)
-      promise
-        .then((res) => {
-          data.value = res
-        })
-        .catch((err) => {
-          data.error = err
-        })
-        .finally(() => {
-          data.loading = false
-        })
-    else data.loading = false
+    return promise
+      .then((res) => {
+        data.value = res
+        return res
+      })
+      .catch((err) => {
+        data.error = err
+        throw err
+      })
+      .finally(() => {
+        data.loading = false
+      })
   }
 
   watch(service, dispatch, { immediate: opts.initial })
