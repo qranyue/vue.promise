@@ -2,7 +2,7 @@
 import { useRequest } from './request'
 
 const props = defineProps<{
-  promise: Promise<T>
+  promise?: Promise<T>
 }>()
 
 const result = useRequest(() => props.promise)
@@ -11,5 +11,5 @@ const result = useRequest(() => props.promise)
 <template>
   <slot v-if="result.loading" name="loading"></slot>
   <slot v-else-if="result.error" name="error" :error="result.error"></slot>
-  <slot v-else :value="result.value"></slot>
+  <slot v-else :value="result.value!"></slot>
 </template>
