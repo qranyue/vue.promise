@@ -13,4 +13,15 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  build: {
+    lib: {
+      entry: fileURLToPath(new URL("./src/lib/index.ts", import.meta.url)),
+      name: "vue.promise",
+      fileName: () => `index.js`,
+      formats: ["es"],
+    },
+    rollupOptions: {
+      external: ["vue"],
+    },
+  },
 });
