@@ -1,7 +1,6 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts" generic="T">
 import { usePromise } from "./request";
-
-defineOptions({ name: "AwaitPromise" });
 
 const props = defineProps<{
   promise?: Promise<T>;

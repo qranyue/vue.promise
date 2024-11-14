@@ -18,12 +18,17 @@ interface Result<T> {
   loading: boolean;
 }
 
+/** 异步请求 */
+interface Dispatch<T> {
+  (promise?: Promise<T>): Promise<void> | undefined;
+}
+
 export const usePromise = <T>(service: WatchSource<Promise<T> | undefined>, opts: Opts<T> = {}) => {
   opts = { immediate: true, ...opts };
 
   const data = shallowReactive<Result<T>>({ loading: false, value: opts.default });
 
-  const dispatch = (promise?: Promise<T>) => {
+  const dispatch: Dispatch<T> = (promise) => {
     if (!promise) return;
     data.loading = true;
     data.error = void 0;
@@ -42,5 +47,5 @@ export const usePromise = <T>(service: WatchSource<Promise<T> | undefined>, opts
 
   watch(service, dispatch, { immediate: opts.immediate });
 
-  return [data, dispatch] as [ShallowReactive<Result<T>>, typeof dispatch];
+  return [data, dispatch] as [ShallowReactive<Result<T>>, Dispatch<T>];
 };
