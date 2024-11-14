@@ -23,7 +23,7 @@ interface Dispatch<T> {
   (promise?: Promise<T>): Promise<void> | undefined;
 }
 
-export const usePromise = <T>(service: WatchSource<Promise<T> | undefined>, opts: Opts<T> = {}) => {
+export const usePromise = <T>(service: WatchSource<Promise<T> | undefined> = () => void 0, opts: Opts<T> = {}) => {
   opts = { immediate: true, ...opts };
 
   const data = shallowReactive<Result<T>>({ loading: false, value: opts.default });
