@@ -1,8 +1,18 @@
 {
-  "name": "vue.promise",
+  "name": "qrany-vue-promise",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
+  "description": "Vue Promise 处理",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/qranyue/vue.promise.git",
   "type": "module",
+  "license": "MIT",
+  "author": "qranyue",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",

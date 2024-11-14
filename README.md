@@ -1,45 +1,118 @@
-# vue.promise
+# 使用方式
 
-This template should help get you started developing with Vue 3 in Vite.
+## Await
 
-## Recommended IDE Setup
+### 基本使用
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+```html
+<script setup lang="ts">
+  import axios from "axios";
+  import { Await } from "qrany-vue-promise";
 
-## Type Support for `.vue` Imports in TS
+  const promise = axios.get("");
+</script>
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+<template>
+  <Await :promise="promise">
+    <template #loading>loading...</template>
+    <template #error="{ error }">{{ error }}</template>
+    <template #default="{ value }">
+      <div v-if="value">有</div>
+      <div v-else>无</div>
+    </template>
+  </Await>
+</template>
 ```
 
-### Compile and Hot-Reload for Development
+### 页面更新
 
-```sh
-npm run dev
+```html
+<script setup lang="ts">
+  import axios from "axios";
+  import { Await } from "qrany-vue-promise";
+  import { shallowRef } from "vue";
+
+  const promise = shallowRef<Promise<unknown>>();
+</script>
+
+<template>
+  <Await :promise="promise">
+    <template #loading>
+      <button disabled>提交中</button>
+    </template>
+    <template #default>
+      <button @click="promise = axios.get('')">提交</button>
+    </template>
+  </Await>
+</template>
 ```
 
-### Type-Check, Compile and Minify for Production
+## usePromise
 
-```sh
-npm run build
+### 基本使用
+
+```html
+<script setup lang="ts">
+  import axios from "axios";
+  import { usePromise } from "qrany-vue-promise";
+
+  const getData = () => axios.get("");
+  const [data] = usePromise(getData);
+</script>
+
+<template>
+  <template v-if="data.loading">loading...</template>
+  <template v-else-if="data.error">{{ data.error }}</template>
+  <template v-else>{{ data.value }}</template>
+</template>
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+### 页面更新
 
-```sh
-npm run test:unit
+```html
+<script setup lang="ts">
+  import axios from "axios";
+  import { usePromise } from "qrany-vue-promise";
+  import { shallowReactive } from "vue";
+  import { useRoute } from "vue-router";
+
+  const route = useRoute();
+  const form = shallowReactive<{ type?: string }>({});
+  const getData = () => axios.get("", { params: { id: route.query.id, type: form.type } });
+
+  const [data] = usePromise(getData);
+</script>
+
+<template>
+  <template v-if="data.loading">loading...</template>
+  <template v-else-if="data.error">{{ data.error }}</template>
+  <template v-else>{{ data.value }}</template>
+</template>
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### 表单提交
 
-```sh
-npm run lint
+```html
+<script setup lang="ts">
+  import axios from "axios";
+  import { usePromise } from "qrany-vue-promise";
+  import { shallowRef } from "vue";
+  import { useRoute } from "vue-router";
+
+  // 方式1
+  const [save, dispatch] = usePromise();
+  const onSave = () => dispatch(axios.post(""));
+
+  // 方式2
+  const promise = shallowRef<Promise<unknown>>();
+  const [save] = usePromise(promise);
+  const onSave = () => (promise.value = axios.post(""));
+</script>
+
+<template>
+  <button :disabled="save.loading" @click="onSave">
+    <template v-if="save.loading">提交中...</template>
+    <template v-else>提交</template>
+  </button>
+</template>
 ```
