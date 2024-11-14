@@ -33,6 +33,7 @@
   import { shallowRef } from "vue";
 
   const promise = shallowRef<Promise<unknown>>();
+  const onSave = () => (promise.value = axios.post(""));
 </script>
 
 <template>
@@ -41,7 +42,7 @@
       <button disabled>提交中</button>
     </template>
     <template #default>
-      <button @click="promise = axios.get('')">提交</button>
+      <button @click="onSave">提交</button>
     </template>
   </Await>
 </template>
