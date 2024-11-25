@@ -1,13 +1,5 @@
 import { shallowReactive, watch, type ShallowReactive, type WatchSource } from "vue";
 
-/** 配置项 */
-interface Opts<T> {
-  /** 默认值 */
-  default?: T;
-  /** 初始化 */
-  immediate?: boolean;
-}
-
 /** 异步值 */
 interface Result<T> {
   /** 异步返回参 */
@@ -23,10 +15,8 @@ interface Dispatch<T> {
   (promise?: Promise<T>): Promise<void> | undefined;
 }
 
-export const usePromise = <T>(service?: WatchSource<Promise<T> | undefined>, opts: Opts<T> = {}) => {
-  opts = { immediate: true, ...opts };
-
-  const data = shallowReactive<Result<T>>({ loading: false, value: opts.default });
+export const usePromise = <T>(service?: WatchSource<Promise<T> | undefined>, defaultValue?: T) => {
+  const data = shallowReactive<Result<T>>({ loading: false, value: defaultValue });
 
   const dispatch: Dispatch<T> = (promise) => {
     if (!promise) return;
@@ -45,7 +35,7 @@ export const usePromise = <T>(service?: WatchSource<Promise<T> | undefined>, opt
       });
   };
 
-  if (service) watch(service, dispatch, { immediate: opts.immediate });
+  if (service) watch(service, dispatch, { immediate: true });
 
   return [data, dispatch] as [ShallowReactive<Result<T>>, Dispatch<T>];
 };
