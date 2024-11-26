@@ -1,41 +1,38 @@
-import { shallowReactive, watch, type ShallowReactive, type WatchSource } from "vue";
+import { shallowReactive, watch, type WatchSource } from "vue";
 
 /** 异步值 */
 interface Result<T> {
   /** 异步返回参 */
   value?: T;
   /** 错误 */
-  error?: Error;
+  error?: unknown;
   /** 加载中 */
   loading: boolean;
 }
 
 /** 异步请求 */
 interface Dispatch<T> {
-  (promise?: Promise<T>): Promise<void> | undefined;
+  (promise: Promise<T>): Promise<void>;
 }
 
-export const usePromise = <T>(service?: WatchSource<Promise<T> | undefined>, defaultValue?: T) => {
+export const usePromise = <T>(service?: WatchSource<Promise<T> | void>, defaultValue?: T) => {
   const data = shallowReactive<Result<T>>({ loading: false, value: defaultValue });
 
-  const dispatch: Dispatch<T> = (promise) => {
-    if (!promise) return;
+  const dispatch: Dispatch<T> = async (promise) => {
     data.loading = true;
     data.error = void 0;
 
-    return promise
-      .then((res) => {
-        data.value = res;
-      })
-      .catch((err) => {
-        data.error = err;
-      })
-      .finally(() => {
-        data.loading = false;
-      });
+    try {
+      const res = await promise;
+      data.value = res;
+    } catch (err) {
+      data.error = err;
+    } finally {
+      data.loading = false;
+    }
   };
 
-  if (service) watch(service, dispatch, { immediate: true });
+  if (service) watch(service, (v) => v && dispatch(v), { flush: "sync", immediate: true });
 
-  return [data, dispatch] as [ShallowReactive<Result<T>>, Dispatch<T>];
+  return [data, dispatch] as const;
 };

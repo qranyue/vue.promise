@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { Await } from "./lib";
+import { shallowRef } from "vue";
+import { usePromise } from "./lib";
 
-const p = new Promise<string>((resolve) => setTimeout(() => resolve("done"), 1000));
+// const p = new Promise<{ text: string }>((resolve, reject) => setTimeout(() => reject({ k: 0 }), 1000));
+const v = shallowRef<Promise<string>>();
+const [data] = usePromise(v);
 </script>
 
 <template>
-  <Await :promise="p">
-    <template #loading>Loading...</template>
-    <template #default="{ value }">
-      {{ value }}
-    </template>
-  </Await>
+  <div>{{ data.loading }}</div>
 </template>
 
 <style scoped></style>

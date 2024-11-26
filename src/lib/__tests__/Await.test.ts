@@ -1,59 +1,79 @@
+import { describe, it, expect } from "vitest";
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import Component from "../Await.vue";
 
-import { Await } from "..";
-import { defineComponent, h, shallowRef } from "vue";
+describe("Component", () => {
+  const wait = <V>(v: V, t = 100) => new Promise<V>((resolve) => setTimeout(() => resolve(v), t));
 
-describe("AwaitPromise", () => {
-  it("异步加载", async () => {
-    const com = mount(Await, {
-      props: { promise: new Promise((resolve) => setTimeout(() => resolve("deno"), 1000)) },
+  it("加载中测试", async () => {
+    const promise = new Promise(() => {});
+    const wrapper = mount(Component, {
+      props: {
+        promise,
+      },
       slots: {
-        loading: () => "Loading...",
-        default: ({ value }) => value,
+        loading: "<div>Loading...</div>",
       },
     });
 
-    expect(com.text()).toBe("Loading...");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    expect(com.text()).toBe("deno");
+    expect(wrapper.html()).toContain("Loading...");
   });
 
-  it("无加载", () => {
-    const com = mount(Await, {
+  it("错误测试", async () => {
+    const promise = new Promise((_, reject) => reject(new Error("Test error")));
+    const wrapper = mount(Component, {
+      props: {
+        promise,
+      },
       slots: {
-        loading: () => "Loading...",
-        default: () => "deno",
+        error: ({ error }) => `<div>Error: ${error}</div>`,
       },
     });
 
-    expect(com.text()).toBe("deno");
+    await promise.catch(() => {}); // 忽略错误;
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.html()).toContain("Error: Test error");
   });
 
-  it("变化", async () => {
-    const App = defineComponent(() => {
-      const p = shallowRef();
-
-      setTimeout(() => {
-        p.value = new Promise((resolve) => setTimeout(() => resolve("deno"), 1000));
-      }, 1000);
-      return () => {
-        return h(
-          Await,
-          { promise: p.value },
-          {
-            loading: () => "Loading...",
-            default: ({ value }: { value: string }) => value || "Promise not ready",
-          },
-        );
-      };
+  it("占位测试", async () => {
+    const promise = wait(1000);
+    const wrapper = mount(Component, {
+      props: {
+        promise,
+      },
+      slots: {
+        placeholder: "<div>No data</div>",
+        default(_) {
+          return `<div>${_.value}</div>`;
+        },
+      },
     });
-    const com = mount(App);
 
-    expect(com.text()).toBe("Promise not ready");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    expect(com.text()).toBe("Loading...");
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    expect(com.text()).toBe("deno");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.html()).toContain("No data");
+
+    await promise;
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.html()).toContain("1000");
+  });
+
+  it("结果测试", async () => {
+    const promise = wait({ text: "data" });
+    const wrapper = mount(Component, {
+      props: {
+        promise,
+      },
+      slots: {
+        default: ({ value }) => `<div>${(value as { text: string }).text}</div>`,
+      },
+    });
+
+    await promise;
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.html()).toContain("data");
   });
 });
