@@ -1,6 +1,6 @@
 {
   "name": "qrany-vue-promise",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": false,
   "description": "Vue Promise 处理",
   "module": "dist/index.js",
