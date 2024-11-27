@@ -9,6 +9,13 @@
     "type": "git",
     "url": "git+https://github.com/qranyue/vue.promise.git"
   },
+  "keywords": [
+    "vue",
+    "promise",
+    "async",
+    "await",
+    "request"
+  ],
   "type": "module",
   "license": "MIT",
   "author": "qranyue",
